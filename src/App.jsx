@@ -399,43 +399,6 @@ function ReglesAdmin({ regles, setRegles }) {
 
 // ─────────────────────────────────────────────────────
 // ── SÉANCE ──────────────────────────────────────────
-function SeanceView({ seance }) {
-  return (
-    <div>
-      <h2 style={{ margin: "0 0 16px", fontSize: 20, color: T.navy }}>{seance.titre || "Séance du jour"}</h2>
-      {seance.objectif && (
-        <Card style={{ borderLeft: `4px solid ${T.gold}` }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: T.gray, textTransform: "uppercase", letterSpacing: .8, marginBottom: 4 }}>Objectif</div>
-          <div style={{ fontSize: 15 }}>{seance.objectif}</div>
-        </Card>
-      )}
-      {seance.echauffement && (
-        <Card>
-          <div style={{ fontWeight: 700, color: T.orange, marginBottom: 6 }}>🔥 Échauffement</div>
-          <div style={{ fontSize: 14, whiteSpace: "pre-wrap" }}>{seance.echauffement}</div>
-        </Card>
-      )}
-      {(seance.situations || []).map((s, i) => (
-        <Card key={i} style={{ borderLeft: `3px solid ${T.navy}` }}>
-          <div style={{ fontWeight: 700, color: T.navy, marginBottom: 6 }}>
-            Situation {i + 1}{s.titre ? ` — ${s.titre}` : ""}
-          </div>
-          <div style={{ fontSize: 14, whiteSpace: "pre-wrap" }}>{s.description}</div>
-          {s.consigne && <div style={{ marginTop: 8, fontSize: 13, color: T.gray, fontStyle: "italic" }}>📌 {s.consigne}</div>}
-        </Card>
-      ))}
-      {seance.bilan && (
-        <Card style={{ borderLeft: `4px solid ${T.green}` }}>
-          <div style={{ fontWeight: 700, color: T.green, marginBottom: 6 }}>✅ Bilan</div>
-          <div style={{ fontSize: 14, whiteSpace: "pre-wrap" }}>{seance.bilan}</div>
-        </Card>
-      )}
-      {!seance.objectif && !seance.echauffement && (!seance.situations?.length) && !seance.bilan && (
-        <Empty msg="La séance n'est pas encore renseignée." />
-      )}
-    </div>
-  );
-}
 
 // ── Helpers publication ─────────────────────────────
 function isPublished(seance) {
@@ -1183,59 +1146,6 @@ function Dashboard({ store, globalCal, globalAS, allDepots }) {
           <div style={{ fontSize: 12, color: T.gray }}>{new Date(nextComp.date).toLocaleDateString("fr-FR")} {nextComp.lieu && `— ${nextComp.lieu}`}</div>
         </Card>
       )}
-    </div>
-  );
-}
-
-// ── NOTES ÉLÈVES ─────────────────────────────────────
-function NotesAdmin({ notes, setNotes, classe, evaluations }) {
-  const [n, setN] = useState({ nom: "", evaluation: "", note: "", commentaire: "" });
-  const add = () => {
-    if (!n.nom || !n.evaluation) return;
-    setNotes(x => [...x, { ...n, classe, date: new Date().toISOString() }]);
-    setN({ nom: "", evaluation: "", note: "", commentaire: "" });
-  };
-  const classeNotes = notes.filter(x => x.classe === classe);
-  const evals = evaluations.map(e => e.titre);
-
-  return (
-    <div>
-      <Card>
-        <h3 style={{ margin: "0 0 14px", color: T.navy }}>Ajouter une note</h3>
-        <Inp label="Nom de l'élève *" value={n.nom} onChange={v => setN(x => ({ ...x, nom: v }))} />
-        <Inp label="Évaluation *" value={n.evaluation} onChange={v => setN(x => ({ ...x, evaluation: v }))} placeholder={evals[0] || "Nom de l'évaluation"} />
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-          <Inp label="Note (/20)" type="number" value={n.note} onChange={v => setN(x => ({ ...x, note: v }))} />
-          <Inp label="Commentaire" value={n.commentaire} onChange={v => setN(x => ({ ...x, commentaire: v }))} />
-        </div>
-        <Btn onClick={add}>Enregistrer</Btn>
-      </Card>
-      <Section title={`Notes — ${classe} (${classeNotes.length})`}>
-        {!classeNotes.length ? <Empty msg="Aucune note enregistrée." /> : (
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-              <thead>
-                <tr style={{ background: T.sky }}>
-                  {["Élève", "Évaluation", "Note", "Commentaire", ""].map(h => (
-                    <th key={h} style={{ padding: "8px 10px", textAlign: "left", fontWeight: 700, color: T.gray, fontSize: 11, textTransform: "uppercase" }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {classeNotes.map((r, i) => (
-                  <tr key={i} style={{ borderBottom: `1px solid ${T.border}` }}>
-                    <td style={{ padding: "8px 10px", fontWeight: 600 }}>{r.nom}</td>
-                    <td style={{ padding: "8px 10px", color: T.gray }}>{r.evaluation}</td>
-                    <td style={{ padding: "8px 10px" }}><b style={{ color: parseFloat(r.note) >= 10 ? T.green : T.red }}>{r.note}/20</b></td>
-                    <td style={{ padding: "8px 10px", color: T.gray, fontStyle: "italic" }}>{r.commentaire}</td>
-                    <td style={{ padding: "8px 10px" }}><Btn small danger onClick={() => setNotes(x => x.filter((_, j) => !(x.indexOf(r) === i && x[i].classe === classe)))}>✕</Btn></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Section>
     </div>
   );
 }
